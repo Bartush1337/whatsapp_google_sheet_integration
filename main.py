@@ -12,7 +12,7 @@ def main():
         מספר: 0502502955
         מיקום: ביסלח
         למיקום: מבשרת ציון
-        זמן: עכשיו
+        שעה: עכשיו
         """
     message_dict = par.pattern_match(test_message)
     sheet_pusher.communicate_message(message_dict)

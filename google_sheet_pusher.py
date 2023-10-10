@@ -16,8 +16,9 @@ class SpreadSheetCommunicator():
         elif 'passanger' in message.keys():
             worksheet = self.sheet.worksheet('passangers')
             del message['passanger']
-        else:
-            worksheet = self.sheet.worksheet(2)
+        elif 'error' in message.keys() :
+            worksheet = self.sheet.worksheet('other')
+            del message['error']
         print(list(message.values()))
         worksheet.append_rows([list(message.values())])
 

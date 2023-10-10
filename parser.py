@@ -1,5 +1,8 @@
 import re
 import unittest
+from datetime import datetime
+
+# datetime object containing current date and time
 
 # The Hebrew message
 
@@ -14,7 +17,7 @@ class Parser():
                 'number' : r'מספר: (\s*[\d-]+\d+)',
                 'start_location' : r'מיקום: (.+)',
                 'end_location' : r'למיקום: (.+)',
-                'time' : r'זמן: (.+)'}
+                'time' : r'שעה: (.+)'}
 
     def pattern_match(self, message):
         #Search for matches using regular expressions
@@ -27,6 +30,11 @@ class Parser():
             if re.search(self.optional_patterns[pattern_key], message) is None:
                 continue
             to_return[pattern_key] = True
+
+        now = datetime.now()
+
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        to_return['hour'] = dt_string
 
 
         return to_return
