@@ -6,7 +6,11 @@ import unittest
 class Parser():
     def __init__(self):
         # Define regular expressions for each piece of information
-        self.patterns = {'name' :  r'שם: (.+)' ,
+        self.optional_patterns = {
+                'driver' : r'מציע',
+                'passanger' : r'מחפש'}
+
+        self.mandatory_patterns = {'name' :  r'שם: (.+)' ,
                 'number' : r'מספר: (\s*[\d-]+\d+)',
                 'start_location' : r'מיקום: (.+)',
                 'end_location' : r'למיקום: (.+)',
@@ -15,24 +19,30 @@ class Parser():
     def pattern_match(self, message):
         #Search for matches using regular expressions
         to_return = {}
-        for pattern_key in self.patterns.keys():
-            if re.search(self.patterns[pattern_key], message) is None:
+        for pattern_key in self.mandatory_patterns.keys():
+            if re.search(self.mandatory_patterns[pattern_key], message) is None:
                 raise(Exception("Couldn't find pattern {}".format(pattern_key)))
-            to_return[pattern_key] = re.search(self.patterns[pattern_key], message).group(1).strip()
+            to_return[pattern_key] = re.search(self.mandatory_patterns[pattern_key], message).group(1).strip()
+        for pattern_key in self.optional_patterns.keys():
+            if re.search(self.optional_patterns[pattern_key], message) is None:
+                continue
+            to_return[pattern_key] = True
+
 
         return to_return
 
 class TestParser(unittest.TestCase):
-    def test_happy_flow(self):
+    def test_happy_flow_driver(self):
         parser = Parser()
         message ="""
+          מציע טרמפ
         שם: אוהד
         מספר: 057654
         מיקום: תל אביב
         למיקום: ירושלים
         זמן: עכשיו
         """
-        expected_result = {'name' :  'אוהד', 'number' : '057654', 'start_location' : 'תל אביב',
+        expected_result = {'is_driver' : True, 'name' :  'אוהד', 'number' : '057654', 'start_location' : 'תל אביב',
                            'end_location':'ירושלים', 'time' : 'עכשיו'}
         self.assertEquals(expected_result, parser.pattern_match(message))
     def test_happy_flow_with_whitespaces(self):
