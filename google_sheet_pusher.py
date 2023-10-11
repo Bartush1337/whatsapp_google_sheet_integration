@@ -29,7 +29,7 @@ class SpreadSheetCommunicator:
             del message["passanger"]
 
         elif "error" in message.keys():
-            worksheet = self.sheet.worksheet("other")
+            worksheet = self.sheet.worksheet("bot-errors")
             del message["error"]
 
         print(list(message.values()))
