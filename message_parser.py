@@ -18,7 +18,7 @@ class MessageParser:
     def __init__(self):
         # Define regular expressions for each piece of information
         self.driver_passenger_patterns = {
-            "driver": [r"מציע"],
+            "driver": [r"מציע", r"מציעה״"],
             "passanger": [r"מחפש", r"מבקשת", r"מחפשת"],
         }
 
