@@ -4,8 +4,10 @@ import json
 
 class SpreadSheetCommunicator():
     def __init__(self, config):
-        credentials = credentials = service_account.Credentials.from_service_account_file(config['permissions_file'],
-                                                                                          scopes=['https://www.googleapis.com/auth/spreadsheets'])
+        service_account.Credentials.from_service_account_file(
+            config['permissions_file'],
+            scopes=['https://www.googleapis.com/auth/spreadsheets'],
+        )
         gc = gspread.service_account(filename=config['permissions_file'])
         self.sheet = gc.open_by_url(config["spreadsheet_url"])
 
