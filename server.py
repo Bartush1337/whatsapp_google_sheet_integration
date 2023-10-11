@@ -8,7 +8,6 @@ import json
 app = FastAPI()
 
 interesting_groups = [
-    "מסמכים ושטויות",
     "טרמפיסטים #2 עוזרים לחיילים",
     "טרמפיסטים 1# עוזרים לחיילים",
     "Test",
