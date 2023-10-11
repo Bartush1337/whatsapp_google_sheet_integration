@@ -1,6 +1,6 @@
 from google.oauth2 import service_account
 import gspread
-import json
+import logging
 
 
 class SpreadSheetCommunicator:
@@ -17,47 +17,52 @@ class SpreadSheetCommunicator:
         return str(len(str_list) + 1)
 
     def communicate_message(self, message):
-        case = ""
-        if "driver" in message.keys():
-            worksheet = self.sheet.worksheet("Drivers")
-            case = "driver"
-            del message["driver"]
+        try:
+            case = ""
+            if "driver" in message.keys():
+                worksheet = self.sheet.worksheet("Drivers")
+                case = "driver"
+                del message["driver"]
 
-        elif "passanger" in message.keys():
-            worksheet = self.sheet.worksheet("Hitchhikers")
-            case = "passenger"
-            del message["passanger"]
+            elif "passanger" in message.keys():
+                worksheet = self.sheet.worksheet("Hitchhikers")
+                case = "passenger"
+                del message["passanger"]
 
-        elif "error" in message.keys():
-            worksheet = self.sheet.worksheet("bot-errors")
-            del message["error"]
+            elif "error" in message.keys():
+                worksheet = self.sheet.worksheet("bot-errors")
+                del message["error"]
 
-        print(list(message.values()))
+            print(list(message.values()))
 
-        values = []
-        if case == "driver":
-            values = [
-                "נהג פעיל",
-                message["name"],
-                message["number"],
-                message["start_location"],
-                message["end_location"],
-                "",
-                message["date"],
-                message["time"],
-            ]
-        elif case == "passenger":
-            values = [
-                "מחכה לטיפול",
-                message["name"],
-                message["number"],
-                message["start_location"],
-                message["end_location"],
-                message["date"],
-                message["time"],
-            ]
+            values = []
+            if case == "driver":
+                values = [
+                    "נהג פעיל",
+                    message["name"],
+                    message["number"],
+                    message["start_location"],
+                    message["end_location"],
+                    "",
+                    message["date"],
+                    message["time"],
+                ]
+            elif case == "passenger":
+                values = [
+                    "מחכה לטיפול",
+                    message["name"],
+                    message["number"],
+                    message["start_location"],
+                    message["end_location"],
+                    message["date"],
+                    message["time"],
+                ]
 
-        worksheet.append_row(
-            values,
-            table_range=f"A{self.next_available_row(worksheet)}",
-        )
+            worksheet.append_row(
+                values,
+                table_range=f"A{self.next_available_row(worksheet)}",
+            )
+
+        except Exception as exc:
+            logging.error(f"Failed to communicate message: {message}")
+            raise exc
