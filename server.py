@@ -1,11 +1,11 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
 import google_sheet_pusher
-import parser
+import message_parser
 import json
 
-interesting_groups = ["טרמפיסטים 2# עוזרים לחיילים", "טרמפיסטים 1# עוזרים לחיילים", "Test"]
-par = parser.Parser()
+interesting_groups = ["טרמפיסטים #2 עוזרים לחיילים", "טרמפיסטים 1# עוזרים לחיילים", "Test"]
+par = message_parser.MessageParser()
 config = json.load(open("config.json", "rb"))
 sheet_pusher = google_sheet_pusher.SpreadSheetCommunicator(config)
 
@@ -29,7 +29,7 @@ class S(BaseHTTPRequestHandler):
         if body["group_name"] in interesting_groups:
             self.handle_message(body["message"])
         else:
-            print("group {} nor interesting".format(body["group_name"]))
+            print("group {} not interesting".format(body["group_name"]))
         self._set_response()
         self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
 
@@ -38,6 +38,7 @@ class S(BaseHTTPRequestHandler):
             message_dict = par.pattern_match(message)
         except Exception:
             message_dict = {'error': True, 'raw_data' : message}
+        logging.info(f"Parsed message: {message_dict}")
         sheet_pusher.communicate_message(message_dict)
 
 def run(server_class=HTTPServer, handler_class=S, port=2001):
