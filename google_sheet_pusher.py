@@ -19,12 +19,12 @@ class SpreadSheetCommunicator:
     def communicate_message(self, message):
         case = ""
         if "driver" in message.keys():
-            worksheet = self.sheet.worksheet("drivers")
+            worksheet = self.sheet.worksheet("Drivers")
             case = "driver"
             del message["driver"]
 
         elif "passanger" in message.keys():
-            worksheet = self.sheet.worksheet("passangers")
+            worksheet = self.sheet.worksheet("Hitchhikers")
             case = "passenger"
             del message["passanger"]
 
