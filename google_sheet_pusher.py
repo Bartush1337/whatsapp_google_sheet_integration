@@ -33,11 +33,12 @@ class SpreadSheetCommunicator:
 
             elif "error" in message.keys():
                 worksheet = self.sheet.worksheet("bot-errors")
+                case = "error"
                 del message["error"]
 
             print(list(message.values()))
-
             values = []
+
             if case == "driver":
                 values = [
                     "נהג פעיל",                             #A
@@ -56,7 +57,8 @@ class SpreadSheetCommunicator:
                     "",                                     #N
                     message["hour"]                         #O
                 ]
-            elif case == "passenger":
+
+            if case == "passenger":
                 values = [
                     "מחכה לטיפול",
                     message["name"],
@@ -70,6 +72,10 @@ class SpreadSheetCommunicator:
                     "",
                     message["hour"]
                 ]
+
+            if case == "error":
+                values = [message.values()]
+
 
             worksheet.append_row(
                 values,
