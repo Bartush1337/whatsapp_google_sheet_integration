@@ -1,67 +1,64 @@
-import http.client
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import logging
 import google_sheet_pusher
 import message_parser
 import json
 
-interesting_groups = ["טרמפיסטים #2 עוזרים לחיילים", "טרמפיסטים 1# עוזרים לחיילים", "Test"]
+app = FastAPI()
+
+interesting_groups = [
+    "טרמפיסטים #2 עוזרים לחיילים",
+    "טרמפיסטים 1# עוזרים לחיילים",
+    "guyandroi",
+    "test"
+]
 par = message_parser.MessageParser()
-config = json.load(open("config.json", "rb"))
+config = json.load(open("/root/whatsapp_google_sheet_integration/config.json", "rb"))
 sheet_pusher = google_sheet_pusher.SpreadSheetCommunicator(config)
 
-class S(BaseHTTPRequestHandler):
-    def _set_response(self, response=200):
-        self.send_response(response)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
 
-    def do_GET(self):
-        logging.info("GET request,\nPath: %s\nHeaders:\n%s\n", str(self.path), str(self.headers))
-        self._set_response()
-        self.wfile.write("GET request for {}".format(self.path).encode('utf-8'))
+class MessageRequest(BaseModel):
+    group_id: str
+    group_name: str
+    message: str
+    phone_number: str
 
-    def do_POST(self):
-        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
-        post_data = self.rfile.read(content_length) # <--- Gets the data itself
-        logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
-                str(self.path), str(self.headers), post_data.decode('utf-8'))
-        body = json.loads(post_data.decode('utf-8'))
-        response = http.client.OK
-        if body["group_name"] in interesting_groups:
-            response = self.handle_message(body["message"])
-        else:
-            print("group {} not interesting".format(body["group_name"]))
-        self._set_response(response)
-        self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
 
-    def handle_message(self, message):
-        response = http.client.OK
-        try:
-            message_dict = par.pattern_match(message)
-        except Exception:
-            message_dict = {'error': True, 'raw_data' : message}
-            response = http.client.NOT_ACCEPTABLE
+@app.post("/")
+async def process_message(message_request: MessageRequest):
+    try:
+        # not an interesting group
+        if message_request.group_name not in interesting_groups:
+            return {"ack_needed": False}
+
+        # message parsed successfully
+        if handled_message(message_request.message):
+            return {"ack_needed": True}
+
+        # couldnt parse the message
+        return {"ack_needed": False}
+
+    except Exception as exc:
+        logging.error(f"Failed to process message request: {message_request}")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+def handled_message(message):
+    try:
+        message_dict = par.pattern_match(message)
         logging.info(f"Parsed message: {message_dict}")
         sheet_pusher.communicate_message(message_dict)
-        return response
+        return True
 
-def run(server_class=HTTPServer, handler_class=S, port=2001):
-    logging.basicConfig(level=logging.INFO)
-    server_address = ('', port)
-    httpd = server_class(server_address, handler_class)
-    logging.info('Starting httpd...\n')
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
-    logging.info('Stopping httpd...\n')
+    except ValueError as exc:
+        # Couldn't parse the message
+        logging.error(f"Failed to parse message: {message}")
+        logging.error(f"Error: {exc}")
+        return False
 
-if __name__ == '__main__':
-    from sys import argv
 
-    if len(argv) == 2:
-        run(port=int(argv[1]))
-    else:
-        run()
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=2001)
