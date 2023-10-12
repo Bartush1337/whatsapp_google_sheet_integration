@@ -32,6 +32,11 @@ class MessageParser:
             "date": Pattern(keys=["תאריך","בתאריך"], content=r"(.+)", required=False),
         }
 
+        self.banned_words = {
+            "stuff": Pattern(keys=["ציוד", "שינוע"], content=r"(.+)", required=False),
+
+        }
+
     def pattern_match(self, message):
         # Search for matches using regular expressions
         to_return = {}
@@ -52,6 +57,12 @@ class MessageParser:
             for value in values:
                 if re.search(value, message) is not None:
                     to_return[pattern_key] = True
+
+        for pattern_key, pattern in self.banned_words.items():
+            for key in pattern.keys:
+                search_result = re.search(f"{key}", message)
+                if search_result is not None:
+                    raise ValueError(f"Banned usage {pattern_key}")
 
         now = datetime.now()
 

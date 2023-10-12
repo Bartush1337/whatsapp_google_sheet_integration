@@ -23,6 +23,7 @@ class MessageRequest(BaseModel):
     group_name: str
     message: str
     phone_number: str
+    stopped: bool
 
 
 @app.post("/")
@@ -33,7 +34,7 @@ async def process_message(message_request: MessageRequest):
             return {"ack_needed": False}
 
         # message parsed successfully
-        if handled_message(message_request.message):
+        if handled_message(message_request.message, message_request.stopped):
             return {"ack_needed": True}
 
         # couldnt parse the message
@@ -44,11 +45,13 @@ async def process_message(message_request: MessageRequest):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
-def handled_message(message):
+def handled_message(message, stopped = True):
     try:
         message_dict = par.pattern_match(message)
         logging.info(f"Parsed message: {message_dict}")
-        sheet_pusher.communicate_message(message_dict)
+
+        sheet_pusher.communicate_message(message_dict, stopped)
+
         return True
 
     except ValueError as exc:

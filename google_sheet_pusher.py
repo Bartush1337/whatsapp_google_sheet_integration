@@ -10,7 +10,9 @@ class SpreadSheetCommunicator:
             scopes=["https://www.googleapis.com/auth/spreadsheets"],
         )
         gc = gspread.service_account(filename=config["permissions_file"])
-        self.sheet = gc.open_by_url(config["spreadsheet_url"])
+
+        self.demo_sheet = gc.open_by_url(config["demo_spreadsheet_url"])
+        self.main_sheet =gc.open_by_url(config["main_spreadsheet_url"])
 
     def next_available_row(self,worksheet):
         cols = worksheet.range(1, 1, worksheet.row_count, 10)
@@ -18,21 +20,23 @@ class SpreadSheetCommunicator:
         
 
 
-    def communicate_message(self, message):
+    def communicate_message(self, message, stopped):
         try:
+            sheet = self.demo_sheet if stopped else self.main_sheet
+            
             case = ""
             if "driver" in message.keys():
-                worksheet = self.sheet.worksheet("Drivers")
+                worksheet = sheet.worksheet("Drivers")
                 case = "driver"
                 del message["driver"]
 
             elif "passanger" in message.keys():
-                worksheet = self.sheet.worksheet("Hitchhikers")
+                worksheet = sheet.worksheet("Hitchhikers")
                 case = "passenger"
                 del message["passanger"]
 
             elif "error" in message.keys():
-                worksheet = self.sheet.worksheet("bot-errors")
+                worksheet = sheet.worksheet("bot-errors")
                 case = "error"
                 del message["error"]
 
