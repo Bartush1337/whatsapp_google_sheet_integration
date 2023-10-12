@@ -37,6 +37,7 @@ class SpreadSheetCommunicator:
                 del message["error"]
 
             print(list(message.values()))
+            values = []
 
             if case == "driver":
                 values = [
