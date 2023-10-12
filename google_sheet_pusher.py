@@ -12,9 +12,15 @@ class SpreadSheetCommunicator:
         gc = gspread.service_account(filename=config["permissions_file"])
         self.sheet = gc.open_by_url(config["spreadsheet_url"])
 
-    def next_available_row(self, worksheet):
-        str_list = list(filter(None, worksheet.col_values(1)))
-        return str(len(str_list) + 1)
+    # def next_available_row(self, worksheet):
+    #     str_list = list(filter(None, worksheet.col_values(1)))
+    #     return str(len(str_list) + 1)
+
+    def next_available_row(self,worksheet):
+        cols = worksheet.range(1, 1, worksheet.row_count, 10)
+        return max([cell.row for cell in cols if cell.value]) + 1
+        
+
 
     def communicate_message(self, message):
         try:
@@ -46,6 +52,13 @@ class SpreadSheetCommunicator:
                     "",
                     message["date"],
                     message["time"],
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    message["hour"]
                 ]
             elif case == "passenger":
                 values = [
@@ -56,6 +69,10 @@ class SpreadSheetCommunicator:
                     message["end_location"],
                     message["date"],
                     message["time"],
+                    "",
+                    "",
+                    "",
+                    message["hour"]
                 ]
 
             worksheet.append_row(
