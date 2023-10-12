@@ -41,20 +41,21 @@ class SpreadSheetCommunicator:
             if case == "driver":
                 values = [
                     "נהג פעיל",
-                    message["name"],
-                    message["number"],
-                    message["start_location"],
-                    message["end_location"],
-                    "",
-                    message["date"],
-                    message["time"],
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    message["hour"]
+                    message["name"],                        #A
+                    message["number"],                      #B
+                    message["start_location"],              #C
+                    message["end_location"],                #D
+                    "",                                     #E
+                    message["date"],                        #F
+                    message["time"],                        #G
+                    "",                                     #H
+                    "",                                     #i
+                    "",                                     #J
+                    "",                                     #K
+                    "",                                     #L
+                    message["armed"],                       #M
+                    "",                                     #N
+                    message["hour"]                         #O
                 ]
             elif case == "passenger":
                 values = [

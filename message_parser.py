@@ -25,6 +25,7 @@ class MessageParser:
         self.mandatory_patterns = {
             "name": Pattern(keys=["שם"], content=r"(.+)"),
             "number": Pattern(keys=["מספר", "נייד", "טל","טלפון"], content=r"(\s*[\d-]+\d+)"),
+            "armed" : Pattern(keys=["חמושה","חמוש"], content=r"(.+)", required=False),
             "start_location": Pattern(keys=["מיקום", "ממקום"], content=r"(.+)"),
             "end_location": Pattern(keys=["למיקום", "למקום"], content=r"(.+)"),
             "time": Pattern(keys=["שעה", "זמן", "מתי","בשעה"], content=r"(.+)"),
@@ -42,8 +43,10 @@ class MessageParser:
                     to_return[pattern_key] = search_result.group(1).strip()
                     break
 
-            if pattern_key not in to_return and pattern.required:
-                raise ValueError(f"Couldn't find pattern {pattern_key}")
+            if pattern_key not in to_return:
+                to_return[pattern_key] = ""
+                if pattern.required:
+                    raise ValueError(f"Couldn't find pattern {pattern_key}")
 
         for pattern_key, values in self.driver_passenger_patterns.items():
             for value in values:
