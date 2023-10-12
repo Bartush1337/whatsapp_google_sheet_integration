@@ -10,10 +10,11 @@ app = FastAPI()
 interesting_groups = [
     "טרמפיסטים #2 עוזרים לחיילים",
     "טרמפיסטים 1# עוזרים לחיילים",
-    "Test",
+    "guyandroi",
+    "test"
 ]
 par = message_parser.MessageParser()
-config = json.load(open("config.json", "rb"))
+config = json.load(open("/root/whatsapp_google_sheet_integration/config.json", "rb"))
 sheet_pusher = google_sheet_pusher.SpreadSheetCommunicator(config)
 
 

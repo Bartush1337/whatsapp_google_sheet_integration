@@ -24,11 +24,11 @@ class MessageParser:
 
         self.mandatory_patterns = {
             "name": Pattern(keys=["שם"], content=r"(.+)"),
-            "number": Pattern(keys=["מספר", "נייד", "טל"], content=r"(\s*[\d-]+\d+)"),
+            "number": Pattern(keys=["מספר", "נייד", "טל","טלפון"], content=r"(\s*[\d-]+\d+)"),
             "start_location": Pattern(keys=["מיקום", "ממקום"], content=r"(.+)"),
             "end_location": Pattern(keys=["למיקום", "למקום"], content=r"(.+)"),
-            "time": Pattern(keys=["שעה", "זמן", "מתי"], content=r"(.+)"),
-            "date": Pattern(keys=["תאריך"], content=r"(.+)", required=False),
+            "time": Pattern(keys=["שעה", "זמן", "מתי","בשעה"], content=r"(.+)"),
+            "date": Pattern(keys=["תאריך","בתאריך"], content=r"(.+)", required=False),
         }
 
     def pattern_match(self, message):
