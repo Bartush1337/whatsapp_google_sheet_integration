@@ -40,6 +40,7 @@ class MessageParser:
     def pattern_match(self, message):
         # Search for matches using regular expressions
         to_return = {}
+        is_driver_passanger_set = False
         message = message.replace("*", "")  # Remove '*' to make regex more stable.
         for pattern_key, pattern in self.mandatory_patterns.items():
             for key in pattern.keys:
@@ -56,7 +57,10 @@ class MessageParser:
         for pattern_key, values in self.driver_passenger_patterns.items():
             for value in values:
                 if re.search(value, message) is not None:
+                    if is_driver_passanger_set:
+                        raise ValueError(f"Can't decide if this is a driver or a passanger")
                     to_return[pattern_key] = True
+                    is_driver_passanger_set = True
 
         for pattern_key, pattern in self.banned_words.items():
             for key in pattern.keys:
